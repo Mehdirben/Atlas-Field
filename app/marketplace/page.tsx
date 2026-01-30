@@ -18,6 +18,7 @@ export default function InvestorPortalPage() {
     const [submitted, setSubmitted] = useState(false);
     const [filter, setFilter] = useState<"all" | "field" | "forest">("all");
     const [sortBy, setSortBy] = useState<"score" | "area" | "recent">("score");
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
         loadListings();
@@ -55,9 +56,15 @@ export default function InvestorPortalPage() {
 
     const filteredListings = listings
         .filter(l => {
-            if (filter === "field") return l.site_type === "FIELD";
-            if (filter === "forest") return l.site_type === "FOREST";
-            return true;
+            const matchesFilter = filter === "all" ||
+                (filter === "field" && l.site_type === "FIELD") ||
+                (filter === "forest" && l.site_type === "FOREST");
+
+            const matchesSearch = searchTerm === "" ||
+                l.site_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                (l.site_type === "FIELD" ? l.crop_type : l.forest_type)?.toLowerCase().includes(searchTerm.toLowerCase());
+
+            return matchesFilter && matchesSearch;
         })
         .sort((a, b) => {
             if (sortBy === "score") return b.investor_score.total_score - a.investor_score.total_score;
@@ -76,39 +83,87 @@ export default function InvestorPortalPage() {
         );
     }
 
+    const totalInvestment = listings.reduce((sum, l) => sum + l.investor_score.investment_potential_dh, 0);
+    const avgROI = Math.round(listings.reduce((sum, l) => sum + (l.investor_score.estimated_roi_min + l.investor_score.estimated_roi_max) / 2, 0) / listings.length) || 0;
+    const totalCO2 = listings.reduce((sum, l) => sum + (l.co2_credits_available || 0), 0);
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-emerald-50/30">
             {/* Header */}
             <DashboardNav user={session?.user} />
 
             {/* Hero */}
-            <div className="relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-r from-emerald-600 via-emerald-500 to-cyan-500" />
-                <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg%20width%3D%2260%22%20height%3D%2260%22%20viewBox%3D%220%200%2060%2060%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cg%20fill%3D%22none%22%20fill-rule%3D%22evenodd%22%3E%3Cg%20fill%3D%22%23ffffff%22%20fill-opacity%3D%220.05%22%3E%3Cpath%20d%3D%22M36%2034v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6%2034v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6%204V0H4v4H0v2h4v4h2V6h4V4H6z%22%2F%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E')] opacity-50" />
-                <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-20 text-white">
-                    <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4">
-                        Invest in Sustainable Agriculture
+            <div className="relative min-h-[500px] flex items-center justify-center overflow-hidden">
+                {/* Background Image with Parallax-like effect */}
+                <div className="absolute inset-0 z-0">
+                    <img
+                        src="/marketplace-hero.png"
+                        alt="Moroccan sustainable estate"
+                        className="w-full h-full object-cover scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-slate-900/60 via-slate-900/40 to-slate-900/80 backdrop-blur-[2px]" />
+                </div>
+
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-400/30 text-emerald-300 text-xs font-bold tracking-widest uppercase mb-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                        <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                        </span>
+                        Satellite Verified Opportunities
+                    </div>
+
+                    <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white mb-6 tracking-tight drop-shadow-2xl">
+                        Invest in <span className="bg-gradient-to-r from-emerald-400 to-emerald-200 bg-clip-text text-transparent">Sustainable</span> Agriculture
                     </h1>
-                    <p className="text-lg sm:text-xl text-white/80 max-w-2xl mb-6">
-                        Browse satellite-verified farms and forests. Get data-driven investment insights
-                        with our AI-powered Investor Attractiveness Score.
+
+                    <p className="text-lg sm:text-xl text-white/80 max-w-3xl mx-auto mb-10 leading-relaxed font-medium">
+                        Direct access to high-yield agricultural and forest assets.
+                        Data-driven insights powered by high-resolution satellite analysis and AI scores.
                     </p>
-                    <div className="flex flex-wrap gap-4">
-                        <div className="flex items-center gap-2 bg-white/20 backdrop-blur-sm px-4 py-2 rounded-lg text-sm sm:text-base">
-                            <span className="text-xl sm:text-2xl">📊</span>
-                            <span>Score-based ratings</span>
+
+                    {/* Integrated Search Bar */}
+                    <div className="max-w-2xl mx-auto relative group mb-12">
+                        <div className="absolute inset-0 bg-emerald-500/20 blur-2xl group-hover:bg-emerald-500/30 transition-all duration-500 rounded-full" />
+                        <div className="relative flex items-center bg-white/10 backdrop-blur-xl border border-white/20 p-2 rounded-2xl shadow-2xl overflow-hidden focus-within:ring-2 focus-within:ring-emerald-500/50 transition-all">
+                            <div className="pl-4 text-emerald-400">
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <input
+                                type="text"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                placeholder="Search by name, crop, or location..."
+                                className="w-full bg-transparent border-none text-white placeholder-white/50 px-4 py-3 focus:outline-none text-lg font-medium"
+                            />
+                            <button className="hidden sm:flex items-center gap-2 bg-emerald-500 hover:bg-emerald-600 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg active:scale-95">
+                                Browse
+                            </button>
                         </div>
-                        <div className="flex items-center gap-1.5 sm:gap-2 bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base">
-                            <span className="text-xl sm:text-2xl">🌍</span>
-                            <span>CO₂ Credits available</span>
+                    </div>
+
+                    {/* Market Stats Bar */}
+                    <div className="flex flex-wrap justify-center gap-4 sm:gap-8">
+                        <div className="flex flex-col items-center">
+                            <span className="text-2xl sm:text-3xl font-black text-white">{(totalInvestment / 1000000).toFixed(1)}M+</span>
+                            <span className="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-widest">DH Verified</span>
                         </div>
-                        <div className="flex items-center gap-1.5 sm:gap-2 bg-white/20 backdrop-blur-sm px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-sm sm:text-base">
-                            <span className="text-xl sm:text-2xl">🛰️</span>
-                            <span>Satellite verified</span>
+                        <div className="w-[1px] h-10 bg-white/10 hidden sm:block" />
+                        <div className="flex flex-col items-center">
+                            <span className="text-2xl sm:text-3xl font-black text-emerald-400">{avgROI}%</span>
+                            <span className="text-[10px] sm:text-xs font-bold text-white/50 uppercase tracking-widest">Avg. Annual ROI</span>
+                        </div>
+                        <div className="w-[1px] h-10 bg-white/10 hidden sm:block" />
+                        <div className="flex flex-col items-center">
+                            <span className="text-2xl sm:text-3xl font-black text-white">{totalCO2.toLocaleString()}t</span>
+                            <span className="text-[10px] sm:text-xs font-bold text-emerald-400 uppercase tracking-widest">CO₂ Offsets</span>
                         </div>
                     </div>
                 </div>
             </div>
+
 
             {/* Main Content */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -150,7 +205,7 @@ export default function InvestorPortalPage() {
                 {/* Listings */}
                 {filteredListings.length === 0 ? (
                     <div className="text-center py-20 bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60">
-                        <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-emerald-100 to-cyan-100 flex items-center justify-center">
+                        <div className="w-24 h-24 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-emerald-100 to-emerald-200 flex items-center justify-center">
                             <span className="text-5xl">🌱</span>
                         </div>
                         <h3 className="text-xl font-semibold text-slate-900 mb-2">No listings available</h3>
@@ -167,7 +222,7 @@ export default function InvestorPortalPage() {
                                 className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200/60 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group"
                             >
                                 {/* Visual Header */}
-                                <div className="relative h-32 bg-gradient-to-br from-emerald-400 via-cyan-500 to-emerald-600 overflow-hidden">
+                                <div className="relative h-32 bg-gradient-to-br from-emerald-500 via-emerald-600 to-emerald-700 overflow-hidden">
                                     <div className="absolute inset-0 opacity-30">
                                         {listing.site_type === "FOREST" ? (
                                             <div className="grid grid-cols-8 gap-1 p-2">
@@ -229,12 +284,12 @@ export default function InvestorPortalPage() {
                                     </div>
 
                                     {listing.co2_credits_available && (
-                                        <div className="bg-gradient-to-r from-cyan-50 to-emerald-50 rounded-xl p-3 mb-5 flex items-center justify-between border border-cyan-100">
-                                            <span className="flex items-center gap-2 text-xs font-semibold text-cyan-700">
+                                        <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 rounded-xl p-3 mb-5 flex items-center justify-between border border-emerald-100">
+                                            <span className="flex items-center gap-2 text-xs font-semibold text-emerald-700">
                                                 <span className="text-base">🌍</span>
                                                 CO₂ Credits
                                             </span>
-                                            <span className="text-xs font-bold text-cyan-700">
+                                            <span className="text-xs font-bold text-emerald-700">
                                                 {listing.co2_credits_available}t @ {listing.co2_price_per_ton} DH/t
                                             </span>
                                         </div>
