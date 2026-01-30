@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import { Badge, Button } from "@/components/ui";
 import { SITE_LIMITS, SubscriptionTier } from "@/lib/constants";
+import { getTelegramSettings, saveTelegramSettings, type TelegramSettings } from "@/lib/telegram-service";
 
 export default function SettingsPage() {
   const { data: session } = useSession();
@@ -26,6 +27,17 @@ export default function SettingsPage() {
     weekly_report: true,
     analysis_complete: true,
   });
+
+  const [telegramSettings, setTelegramSettings] = useState<TelegramSettings>({
+    botToken: "",
+    chatId: "",
+    enabled: false,
+  });
+
+  // Load telegram settings on mount
+  useEffect(() => {
+    setTelegramSettings(getTelegramSettings());
+  }, []);
 
   const handleNotificationChange = (key: keyof typeof notifications) => {
     setNotifications((prev) => ({
@@ -274,7 +286,72 @@ export default function SettingsPage() {
                     </div>
                   ))}
                 </div>
-                <Button className="mt-6">Save Preferences</Button>
+
+                <div className="mt-8 pt-8 border-t border-slate-100">
+                  <h3 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <span>📡</span> Telegram Alerts API
+                  </h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between p-4 bg-slate-50/80 rounded-xl border border-slate-200/60">
+                      <div>
+                        <h3 className="font-medium text-slate-900">Enable Telegram Alerts</h3>
+                        <p className="text-sm text-slate-500">Receive alerts via your Telegram Bot</p>
+                      </div>
+                      <button
+                        onClick={() => setTelegramSettings(prev => ({ ...prev, enabled: !prev.enabled }))}
+                        className={`relative w-12 h-6 rounded-full transition-colors duration-200 ${telegramSettings.enabled ? "bg-emerald-500" : "bg-slate-300"
+                          }`}
+                      >
+                        <span
+                          className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full shadow transition-transform duration-200 ${telegramSettings.enabled ? "translate-x-6" : "translate-x-0"
+                            }`}
+                        />
+                      </button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Bot Token
+                        </label>
+                        <input
+                          type="password"
+                          value={telegramSettings.botToken}
+                          onChange={(e) => setTelegramSettings(prev => ({ ...prev, botToken: e.target.value }))}
+                          placeholder="123456789:ABCDEF..."
+                          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-slate-700 mb-2">
+                          Chat ID
+                        </label>
+                        <input
+                          type="text"
+                          value={telegramSettings.chatId}
+                          onChange={(e) => setTelegramSettings(prev => ({ ...prev, chatId: e.target.value }))}
+                          placeholder="e.g. 987654321"
+                          className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all text-sm"
+                        />
+                      </div>
+                    </div>
+                    <p className="text-xs text-slate-500 italic">
+                      Tip: Create a bot with @BotFather and get your chat ID from @userinfobot
+                    </p>
+                  </div>
+                </div>
+
+                <Button
+                  className="mt-6"
+                  onClick={() => {
+                    setSaving(true);
+                    saveTelegramSettings(telegramSettings);
+                    setTimeout(() => setSaving(false), 800);
+                  }}
+                  disabled={saving}
+                >
+                  {saving ? "Saving..." : "Save Preferences"}
+                </Button>
               </div>
             </div>
           )}

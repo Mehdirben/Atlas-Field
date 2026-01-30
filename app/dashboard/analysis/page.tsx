@@ -17,6 +17,7 @@ import {
   ForestTrends,
   FieldTrends,
 } from "@/lib/api";
+import { formatAnalysisAlert, sendTelegramMessage } from "@/lib/telegram-service";
 import { Badge } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -913,6 +914,10 @@ export default function AnalysisPage() {
       ]);
       setYieldData(yieldRes);
       setBiomassData(biomassRes);
+
+      // Send Telegram Notification
+      const alertMsg = formatAnalysisAlert(selectedSite.name, type, analysis);
+      await sendTelegramMessage(alertMsg);
     } catch (error) {
       console.error("Analysis failed:", error);
     } finally {
