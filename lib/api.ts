@@ -11,7 +11,9 @@ import {
   SiteType,
   FieldTrends,
   ForestTrends,
-  Field
+  Field,
+  CommunitySignal,
+  SignalType
 } from "../types/api";
 
 export {
@@ -24,7 +26,9 @@ export {
   type SiteType,
   type FieldTrends,
   type ForestTrends,
-  type Field
+  type Field,
+  type CommunitySignal,
+  type SignalType
 };
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
@@ -190,4 +194,17 @@ export const markAlertRead = async (alertId: number): Promise<Alert> => {
 export const markAllAlertsRead = async (): Promise<void> => {
   if (USE_MOCK) return; // Not implemented in mock yet
   await api.put("/alerts/read-all");
+};
+
+// Community Signals
+export const getCommunitySignals = async (): Promise<CommunitySignal[]> => {
+  if (USE_MOCK) return mockApi.getCommunitySignals();
+  const response = await api.get("/community-signals");
+  return response.data;
+};
+
+export const createCommunitySignal = async (data: Partial<CommunitySignal>): Promise<CommunitySignal> => {
+  if (USE_MOCK) return mockApi.createCommunitySignal(data);
+  const response = await api.post("/community-signals", data);
+  return response.data;
 };

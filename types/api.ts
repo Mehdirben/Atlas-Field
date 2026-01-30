@@ -195,3 +195,15 @@ export interface InvestmentSubmission {
     submitted_at: string;
 }
 
+export type SignalType = "DANGER" | "ANIMAL" | "FIRE" | "ROAD_BLOCK" | "OTHER";
+
+export interface CommunitySignal {
+    id: number;
+    type: SignalType;
+    description?: string;
+    latitude: number;
+    longitude: number;
+    created_at: string;
+    user_id?: number;
+    user_name?: string;
+}

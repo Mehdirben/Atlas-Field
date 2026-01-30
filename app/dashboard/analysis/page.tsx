@@ -1287,7 +1287,7 @@ export default function AnalysisPage() {
           <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6">
             <div className="xl:col-span-2 space-y-4 sm:space-y-6">
               <div className="bg-white/80 backdrop-blur-sm rounded-xl sm:rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden">
-                <div className="h-[250px] sm:h-[350px]">
+                <div className="h-[350px] sm:h-[500px]">
                   <FieldMap
                     fields={[selectedSite]}
                     center={getCenterFromGeometry(selectedSite.geometry)}

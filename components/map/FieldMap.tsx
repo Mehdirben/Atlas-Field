@@ -3,7 +3,10 @@
 import { useRef, useEffect, useState } from "react";
 import maplibregl from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
-import { Site } from "@/lib/api";
+import { cn } from "@/lib/utils";
+import { Site, CommunitySignal, SignalType, getCommunitySignals, createCommunitySignal } from "@/lib/api";
+import SignalModal from "./SignalModal";
+import { BellIcon } from "@/components/icons";
 
 interface FieldMapProps {
   fields?: Site[];  // Accept sites (backwards compatible prop name)
@@ -26,6 +29,12 @@ export default function FieldMap({
   const map = useRef<maplibregl.Map | null>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [drawPoints, setDrawPoints] = useState<[number, number][]>([]);
+
+  // Community Signals State
+  const [isReporting, setIsReporting] = useState(false);
+  const [signals, setSignals] = useState<CommunitySignal[]>([]);
+  const [reportCoords, setReportCoords] = useState<[number, number] | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (!mapContainer.current || map.current) return;
@@ -59,6 +68,17 @@ export default function FieldMap({
     });
 
     map.current.addControl(new maplibregl.NavigationControl(), "top-right");
+
+    // Fetch initial signals
+    const fetchSignals = async () => {
+      try {
+        const data = await getCommunitySignals();
+        setSignals(data);
+      } catch (error) {
+        console.error("Failed to fetch signals:", error);
+      }
+    };
+    fetchSignals();
 
     return () => {
       map.current?.remove();
@@ -200,6 +220,105 @@ export default function FieldMap({
     };
   }, [editable, isDrawing, drawPoints, onPolygonComplete]);
 
+  // Handle Reporting Click
+  useEffect(() => {
+    if (!map.current) return;
+
+    const handleMapClick = (e: maplibregl.MapMouseEvent) => {
+      if (!isReporting) return;
+
+      setReportCoords([e.lngLat.lng, e.lngLat.lat]);
+      setIsModalOpen(true);
+      setIsReporting(false); // Mode ends after click
+    };
+
+    map.current.on("click", handleMapClick);
+
+    return () => {
+      map.current?.off("click", handleMapClick);
+    };
+  }, [isReporting]);
+
+  // Render Community Signals
+  useEffect(() => {
+    if (!map.current || signals.length === 0) return;
+
+    const updateSignals = () => {
+      if (!map.current) return;
+
+      // Remove existing signal markers
+      const existingMarkers = document.querySelectorAll('.community-signal-marker');
+      existingMarkers.forEach(m => m.remove());
+
+      signals.forEach(signal => {
+        const el = document.createElement('div');
+        el.className = 'community-signal-marker group relative';
+
+        const iconMap: Record<SignalType, string> = {
+          DANGER: '⚠️',
+          ANIMAL: '🦌',
+          FIRE: '🔥',
+          ROAD_BLOCK: '🚧',
+          OTHER: '📍'
+        };
+
+        const colorMap: Record<SignalType, string> = {
+          DANGER: 'bg-red-500',
+          ANIMAL: 'bg-amber-500',
+          FIRE: 'bg-orange-600',
+          ROAD_BLOCK: 'bg-yellow-600',
+          OTHER: 'bg-blue-500'
+        };
+
+        el.innerHTML = `
+          <div class="w-10 h-10 ${colorMap[signal.type]} rounded-full flex items-center justify-center text-xl shadow-lg cursor-pointer transform hover:scale-110 transition-transform">
+            ${iconMap[signal.type]}
+          </div>
+          <div class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 bg-white rounded-lg shadow-xl p-3 text-xs hidden group-hover:block z-50 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div class="font-bold text-slate-900 flex justify-between">
+              <span>${signal.type.replace('_', ' ')}</span>
+              <span class="text-[10px] text-slate-400 font-normal">${new Date(signal.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+            </div>
+            ${signal.description ? `<p class="text-slate-600 mt-1">${signal.description}</p>` : ''}
+            <div class="mt-2 pt-2 border-t border-slate-100 flex justify-between items-center text-[10px]">
+              <span class="text-slate-400">By ${signal.user_name || 'Anonymous'}</span>
+            </div>
+          </div>
+        `;
+
+        new maplibregl.Marker({ element: el })
+          .setLngLat([signal.longitude, signal.latitude])
+          .addTo(map.current!);
+      });
+    };
+
+    if (map.current.isStyleLoaded()) {
+      updateSignals();
+    } else {
+      map.current.on("load", updateSignals);
+    }
+  }, [signals]);
+
+  const handleSignalSubmit = async (type: SignalType, description: string) => {
+    if (!reportCoords) return;
+
+    try {
+      const newSignalData = {
+        type,
+        description,
+        latitude: reportCoords[1],
+        longitude: reportCoords[0],
+      };
+
+      const response = await createCommunitySignal(newSignalData);
+      setSignals(prev => [response, ...prev]);
+      setIsModalOpen(false);
+      setReportCoords(null);
+    } catch (error) {
+      console.error("Failed to create signal:", error);
+    }
+  };
+
   // Draw preview polygon
   useEffect(() => {
     if (!map.current || drawPoints.length === 0) return;
@@ -248,26 +367,65 @@ export default function FieldMap({
     <div className="relative w-full h-full">
       <div ref={mapContainer} className="w-full h-full" />
 
-      {editable && (
-        <div className="absolute top-4 left-4 bg-white rounded-lg shadow-lg p-3 z-10">
+      {/* Map Controls - Top Left */}
+      <div className="absolute top-4 left-4 z-10 flex flex-col sm:flex-row gap-2 max-w-[calc(100%-100px)]">
+        {editable && (
           <button
             onClick={() => {
               setIsDrawing(!isDrawing);
               if (!isDrawing) setDrawPoints([]);
+              setIsReporting(false);
             }}
-            className={`px-4 py-2 rounded-lg font-medium transition-all ${isDrawing
-              ? "bg-red-500 text-white"
-              : "bg-emerald-500 text-white hover:bg-emerald-600"
-              }`}
+            className={cn(
+              "grow px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-xl whitespace-nowrap",
+              isDrawing
+                ? "bg-red-500 text-white hover:bg-red-600 ring-4 ring-red-500/20"
+                : "bg-white/90 backdrop-blur-md text-emerald-600 border border-emerald-100 hover:bg-white hover:border-emerald-200"
+            )}
           >
-            {isDrawing ? "Cancel Drawing" : "Draw Field"}
+            <span className="text-lg">{isDrawing ? "✖" : "📐"}</span>
+            {isDrawing ? "Cancel Drawing" : "Draw Boundary"}
           </button>
-          {isDrawing && (
-            <p className="text-xs text-slate-500 mt-2 max-w-[200px]">
-              Click to add points. Double-click to complete the polygon.
-            </p>
+        )}
+
+        <button
+          onClick={() => {
+            setIsReporting(!isReporting);
+            setIsDrawing(false);
+          }}
+          className={cn(
+            "grow px-4 py-2.5 rounded-xl font-bold text-sm transition-all flex items-center justify-center gap-2 shadow-xl whitespace-nowrap",
+            isReporting
+              ? "bg-red-500 text-white hover:bg-red-600 ring-4 ring-red-500/20"
+              : "bg-white/90 backdrop-blur-md text-amber-600 border border-amber-100 hover:bg-white hover:border-amber-200"
           )}
-        </div>
+        >
+          <BellIcon className={cn("w-5 h-5", isReporting ? "text-white" : "text-amber-500")} />
+          {isReporting ? "Cancel Report" : "Report Hazard"}
+        </button>
+
+        {(isDrawing || isReporting) && (
+          <div className="bg-slate-900/90 backdrop-blur-md text-white px-4 py-2 rounded-xl text-xs font-medium flex items-center gap-2 animate-in fade-in slide-in-from-left-4 duration-300 shadow-xl border border-white/10">
+            <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
+            {isDrawing
+              ? "Click to add points. Double-click to finish."
+              : "Tap anywhere on the map to place your report."
+            }
+          </div>
+        )}
+      </div>
+
+      {reportCoords && (
+        <SignalModal
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setReportCoords(null);
+          }}
+          onSubmit={handleSignalSubmit}
+          latitude={reportCoords[1]}
+          longitude={reportCoords[0]}
+        />
       )}
     </div>
   );

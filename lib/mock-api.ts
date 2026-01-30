@@ -7,7 +7,9 @@ import {
     SiteType,
     FieldTrends,
     ForestTrends,
-    ChatMessage
+    ChatMessage,
+    CommunitySignal,
+    SignalType
 } from "../types/api";
 
 const STORAGE_KEYS = {
@@ -15,6 +17,7 @@ const STORAGE_KEYS = {
     ANALYSES: "atlas_analyses",
     ALERTS: "atlas_alerts",
     CHAT_HISTORY: "atlas_chat_history",
+    SIGNALS: "atlas_community_signals",
     USER: "atlas_user",
 };
 
@@ -370,6 +373,27 @@ const initialChatHistory: ChatHistory[] = [
     }
 ];
 
+const initialSignals: CommunitySignal[] = [
+    {
+        id: 1,
+        type: "DANGER",
+        description: "Large pothole in the access road",
+        latitude: 37.422,
+        longitude: -122.084,
+        created_at: new Date(Date.now() - 3600000).toISOString(),
+        user_name: "John Doe"
+    },
+    {
+        id: 2,
+        type: "ANIMAL",
+        description: "Wild boar family spotted near the forest edge",
+        latitude: 37.425,
+        longitude: -122.088,
+        created_at: new Date(Date.now() - 7200000).toISOString(),
+        user_name: "Jane Smith"
+    }
+];
+
 // --- Store Logic ---
 
 const getStore = <T>(key: string, initialData: T): T => {
@@ -717,5 +741,27 @@ export const mockApi = {
             is_verified: true,
             created_at: new Date().toISOString(),
         };
+    },
+
+    // Community Signals
+    getCommunitySignals: async (): Promise<CommunitySignal[]> => {
+        return getStore(STORAGE_KEYS.SIGNALS, initialSignals);
+    },
+
+    createCommunitySignal: async (data: Partial<CommunitySignal>): Promise<CommunitySignal> => {
+        const signals = getStore<CommunitySignal[]>(STORAGE_KEYS.SIGNALS, initialSignals);
+        const newSignal: CommunitySignal = {
+            id: signals.length + 1,
+            type: data.type || "OTHER",
+            description: data.description,
+            latitude: data.latitude!,
+            longitude: data.longitude!,
+            created_at: new Date().toISOString(),
+            user_name: "Demo User", // Current user
+            ...data,
+        };
+        signals.push(newSignal);
+        setStore(STORAGE_KEYS.SIGNALS, signals);
+        return newSignal;
     }
 };
