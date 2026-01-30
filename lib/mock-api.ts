@@ -546,9 +546,16 @@ export const mockApi = {
                 ndre: 0.35 + (Math.sin(i / 3) * 0.15) + (Math.random() * 0.03),
                 yield_per_ha: 6 + (Math.sin(i / 2) * 1) + (Math.random() * 0.5),
                 biomass_t_ha: 15 + (i * 0.5) + (Math.random() * 2),
+                ndvi_change_pct: i === 0 ? undefined : (Math.random() * 5 * (Math.random() > 0.5 ? 1 : -1))
             })),
             overall_trend: "IMPROVING",
             avg_ndvi_change: 12.5,
+            avg_yield_change: 8.2,
+            baseline_comparison: {
+                baseline_date: dates[0],
+                ndvi_change_from_baseline_pct: 15.4,
+                yield_change_from_baseline_pct: 10.2
+            },
             has_sufficient_data: true,
         };
     },
@@ -576,8 +583,18 @@ export const mockApi = {
                 canopy_cover_percent: 85 + (Math.random() * 5),
                 fire_risk_level: "LOW",
                 deforestation_risk: "LOW",
+                ndvi_change_pct: i === 0 ? undefined : (Math.random() * 3 * (Math.random() > 0.5 ? 1 : -1))
             })),
             overall_trend: "STABLE",
+            avg_ndvi_change: 2.1,
+            avg_carbon_change: 5.4,
+            baseline_comparison: {
+                baseline_date: dates[0],
+                baseline_carbon_t_ha: 115.0,
+                carbon_change_from_baseline_pct: 8.7,
+                canopy_change_from_baseline_pct: 3.2,
+                ndvi_change_from_baseline_pct: 4.5
+            },
             has_sufficient_data: true,
         };
     },
