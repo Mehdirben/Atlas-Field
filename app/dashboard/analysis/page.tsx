@@ -1328,7 +1328,14 @@ export default function AnalysisPage() {
                             {isForest ? "Latest FOREST Analysis" : "Latest Analysis Interpretation"}
                           </h4>
                           <p className="text-slate-600 text-xs sm:text-base">{String(latestNDVI.interpretation)}</p>
-                          {selectedSite.site_type === "FOREST" ? (
+                          {((latestNDVI.data as any)?.detailed_report || (latestNDVI.data as any)?.forest_data) ? (
+                            <button
+                              onClick={() => setSelectedAnalysis(latestNDVI)}
+                              className={`mt-2 sm:mt-3 text-xs sm:text-sm font-medium ${isForest ? "text-teal-600 hover:text-teal-700" : "text-emerald-600 hover:text-emerald-700"}`}
+                            >
+                              View Full Report →
+                            </button>
+                          ) : isForest && (
                             <button
                               onClick={() => handleRunAnalysis("FOREST")}
                               disabled={analyzing !== null}
@@ -1336,15 +1343,6 @@ export default function AnalysisPage() {
                             >
                               {analyzing === "FOREST" ? <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "🌲"} Run Forest Analysis
                             </button>
-                          ) : (
-                            (latestNDVI.data as any)?.detailed_report && (
-                              <button
-                                onClick={() => setSelectedAnalysis(latestNDVI)}
-                                className="mt-2 sm:mt-3 text-xs sm:text-sm text-emerald-600 hover:text-emerald-700 font-medium"
-                              >
-                                View Full Report →
-                              </button>
-                            )
                           )}
                         </div>
                       )}
