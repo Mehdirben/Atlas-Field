@@ -113,12 +113,14 @@ export function DashboardSidebar() {
               <p className="text-emerald-100 text-xs lg:text-sm mb-4">
                 {tier === "FREE" ? "Upgrade for unlimited access" : "Enjoy your premium features"}
               </p>
-              <Link
-                href="/dashboard/settings?tab=subscription"
-                className="block w-full text-center py-2 lg:py-2.5 bg-white text-emerald-600 text-sm font-semibold rounded-xl hover:bg-emerald-50 hover:shadow-lg transition-all duration-200"
-              >
-                Upgrade to Pro
-              </Link>
+              {tier === "FREE" && (
+                <Link
+                  href="/dashboard/settings?tab=subscription"
+                  className="block w-full text-center py-2 lg:py-2.5 bg-white text-emerald-600 text-sm font-semibold rounded-xl hover:bg-emerald-50 hover:shadow-lg transition-all duration-200"
+                >
+                  Upgrade to Pro
+                </Link>
+              )}
             </div>
           </div>
         </div>

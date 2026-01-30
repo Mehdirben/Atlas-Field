@@ -34,9 +34,12 @@ export default function SettingsPage() {
     }));
   };
 
+  const userTier = (session?.user?.subscriptionTier || "FREE") as SubscriptionTier;
+
   const subscriptionTiers = [
     {
       name: "Free",
+      id: "FREE",
       price: "$0",
       period: "/month",
       features: [
@@ -45,10 +48,11 @@ export default function SettingsPage() {
         "Basic NDVI data",
         "7 days history",
       ],
-      current: true,
+      current: userTier === "FREE",
     },
     {
       name: "Pro",
+      id: "PRO",
       price: "$29",
       period: "/month",
       features: [
@@ -59,11 +63,12 @@ export default function SettingsPage() {
         "Data export",
         "Priority support",
       ],
-      current: false,
+      current: userTier === "PRO",
       popular: true,
     },
     {
       name: "Enterprise",
+      id: "ENTERPRISE",
       price: "Custom",
       period: "",
       features: [
@@ -74,7 +79,7 @@ export default function SettingsPage() {
         "Custom training",
         "24/7 support",
       ],
-      current: false,
+      current: userTier === "ENTERPRISE",
     },
   ];
 
