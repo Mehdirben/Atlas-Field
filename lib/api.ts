@@ -150,7 +150,11 @@ export const getFieldTrends = async (siteId: number): Promise<FieldTrends> => {
 
 // Chat
 export const sendChatMessage = async (message: string, fieldId?: number) => {
-  if (USE_MOCK) return mockApi.sendChatMessage(message, fieldId);
+  if (USE_MOCK) {
+    // Call our internal Next.js API route even in "Mock" mode if we want real AI
+    const response = await axios.post("/api/chat", { message, field_id: fieldId });
+    return response.data;
+  }
   const response = await api.post("/chat", { message, field_id: fieldId });
   return response.data;
 };
