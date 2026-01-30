@@ -48,25 +48,61 @@ When answering, specifically address this site's data if relevant. Keep your adv
             contextPrompt = `You are Atlas, a professional AI assistant specialized in satellite-based precision agriculture and forestry management. Provide expert, data-driven advice.`;
         }
 
-        // 2. Initialize Gemini - using gemini-3-flash-preview as requested
-        console.log("Initializing Gemini model (gemini-3-flash-preview)...");
-        const model = genAI.getGenerativeModel({ model: "gemini-3-flash-preview" });
+        // 2. Initialize Gemini models
+        const primaryModel = "gemini-3-flash-preview";
+        const fallbackModel = "gemini-1.5-flash";
 
-        // 3. Generate response
-        const prompt = `${contextPrompt}\n\nUser Question: ${message}`;
-        console.log("Sending prompt to Gemini. Length:", prompt.length);
+        const generateWithRetry = async (modelName: string, maxRetries = 3) => {
+            console.log(`Attempting generation with ${modelName}...`);
+            const model = genAI.getGenerativeModel({ model: modelName });
+            const prompt = `${contextPrompt}\n\nUser Question: ${message}`;
+
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const result = await model.generateContent(prompt);
+                    const response = await result.response;
+                    return response.text();
+                } catch (err: any) {
+                    const isOverloaded = err.message?.includes("503") || err.status === 503 || err.message?.toLowerCase().includes("overloaded");
+
+                    if (isOverloaded && i < maxRetries - 1) {
+                        const delay = Math.pow(2, i) * 1000;
+                        console.warn(`Gemini overloaded (503). Retrying in ${delay}ms... (Attempt ${i + 1}/${maxRetries})`);
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue;
+                    }
+                    throw err; // Re-throw if not a 503 or max retries reached
+                }
+            }
+        };
 
         try {
-            const result = await model.generateContent(prompt);
-            const response = await result.response;
-            const text = response.text();
-            console.log("Gemini response received. Characters:", text.length);
-            return NextResponse.json({ response: text });
+            // 3. Try primary model first
+            try {
+                const text = await generateWithRetry(primaryModel);
+                console.log("Gemini response received from primary model.");
+                return NextResponse.json({ response: text });
+            } catch (primaryError: any) {
+                console.error(`Primary model (${primaryModel}) failed:`, primaryError.message);
+
+                // 4. Fallback to a more stable model
+                console.log(`Switching to fallback model: ${fallbackModel}...`);
+                const text = await generateWithRetry(fallbackModel, 2);
+                console.log("Gemini response received from fallback model.");
+                return NextResponse.json({
+                    response: text,
+                    note: "Response generated using stable fallback model due to high load."
+                });
+            }
         } catch (genError: any) {
-            console.error("Gemini Generation Error:", genError);
+            console.error("Gemini Final Error:", genError);
             return NextResponse.json(
-                { error: `Gemini API Error: ${genError.message || "Unknown error"}` },
-                { status: 500 }
+                {
+                    error: "The AI service is currently under heavy load (Google 503).",
+                    details: genError.message || "Model overloaded",
+                    suggestion: "Please wait a few seconds and try your question again."
+                },
+                { status: 503 }
             );
         }
     } catch (error: any) {
