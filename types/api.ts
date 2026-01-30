@@ -42,7 +42,7 @@ export type Field = Site;
 export interface Analysis {
     id: number;
     site_id: number;
-    analysis_type: "NDVI" | "RVI" | "MOISTURE" | "FUSION" | "YIELD" | "BIOMASS" | "COMPLETE" | "FOREST";
+    analysis_type: "NDVI" | "EVI" | "NDWI" | "NDRE" | "RVI" | "MOISTURE" | "FUSION" | "YIELD" | "BIOMASS" | "COMPLETE" | "FOREST";
     satellite_date?: string;
     data: Record<string, unknown>;
     mean_value?: number;
@@ -83,6 +83,9 @@ export interface FieldAnalysisData {
     analysis_id: number;
     date: string;
     ndvi: number;
+    evi?: number;
+    ndwi?: number;
+    ndre?: number;
     yield_per_ha?: number;
     biomass_t_ha?: number;
     moisture_pct?: number;

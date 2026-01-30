@@ -131,6 +131,9 @@ const generateDetailedReport = (site: Site, isForest: boolean) => {
             ...base,
             vegetation_health: {
                 ndvi_mean: 0.68,
+                evi_mean: 0.72,
+                ndwi_mean: 0.15,
+                ndre_mean: 0.42,
                 vegetation_density: "Moderate-High",
                 chlorophyll_activity: "Active",
                 growth_stage: "Late Vegetative",
@@ -141,12 +144,19 @@ const generateDetailedReport = (site: Site, isForest: boolean) => {
                 irrigation_need: "None",
                 water_stress_risk: "LOW",
                 estimated_moisture: 0.72,
+                ndwi_value: 0.15,
             },
             biomass_analysis: {
                 mean_biomass_t_ha: 14.2,
                 biomass_level: "High",
                 canopy_structure: "Uniform",
                 total_carbon_t_ha: 42.5,
+                evi_value: 0.72,
+            },
+            nitrogen_analysis: {
+                chlorophyll_content: "Optimal",
+                nitrogen_status: "Sufficient",
+                ndre_value: 0.42,
             },
             yield_prediction: {
                 total_yield_tonnes: (area * 7.2).toFixed(1),
@@ -429,6 +439,9 @@ export const mockApi = {
 
         const interpretations: Record<string, string> = {
             NDVI: isForest ? "High canopy density confirmed. Chlorophyll activity is uniform across the block." : "Vegetation health is robust. NDVI values indicate peak biomass density for the current growth stage.",
+            EVI: "Enhanced vegetation index shows strong biomass development, particularly in high-density areas.",
+            NDWI: "Water stress analysis indicates optimal hydration levels. No immediate irrigation required.",
+            NDRE: "Chlorophyll and nitrogen content analysis shows healthy nutrient uptake across the field.",
             NDMI: "Moisture levels are stable. No significant water stress detected in the central sectors.",
             NBR: "Burn ratio analysis confirms no fire activity. Regeneration patterns are consistent with historical data.",
             CARBON: "Carbon stock remains high. Annual sequestration rates are exceeding targets by 12%.",
@@ -520,6 +533,9 @@ export const mockApi = {
                 analysis_id: i,
                 date,
                 ndvi: 0.4 + (Math.sin(i / 2) * 0.2) + (Math.random() * 0.05),
+                evi: 0.45 + (Math.sin(i / 2) * 0.25) + (Math.random() * 0.05),
+                ndwi: 0.1 + (Math.cos(i / 2) * 0.1) + (Math.random() * 0.02),
+                ndre: 0.35 + (Math.sin(i / 3) * 0.15) + (Math.random() * 0.03),
                 yield_per_ha: 6 + (Math.sin(i / 2) * 1) + (Math.random() * 0.5),
                 biomass_t_ha: 15 + (i * 0.5) + (Math.random() * 2),
             })),
