@@ -133,14 +133,15 @@ const generateDetailedReport = (site: Site, isForest: boolean) => {
             }
         };
     } else {
+        const ndvi = site.latest_ndvi || 0.68;
         return {
             ...base,
             vegetation_health: {
-                ndvi_mean: 0.68,
+                ndvi_mean: ndvi,
                 evi_mean: 0.72,
                 ndwi_mean: 0.15,
                 ndre_mean: 0.42,
-                vegetation_density: "Moderate-High",
+                vegetation_density: ndvi >= 0.7 ? "High" : ndvi >= 0.4 ? "Moderate-High" : "Low",
                 chlorophyll_activity: "Active",
                 growth_stage: "Late Vegetative",
                 health_status: "Good",
@@ -463,6 +464,27 @@ export const mockApi = {
         };
 
         const history = getStore<Analysis[]>(STORAGE_KEYS.ANALYSES, initialAnalyses);
+        const meanValue = 0.6 + (Math.random() * 0.2);
+
+        // Update site with latest info
+        const updatedSites = sites.map(s => {
+            if (s.id === siteId) {
+                return {
+                    ...s,
+                    latest_analysis_date: new Date().toISOString().split('T')[0],
+                    latest_ndvi: isForest ? s.latest_ndvi : meanValue,
+                    health_score: isForest ? s.health_score : Math.round(meanValue * 100),
+                    updated_at: new Date().toISOString()
+                };
+            }
+            return s;
+        });
+        setStore(STORAGE_KEYS.SITES, updatedSites);
+
+        // Re-get updated site for report generation
+        const updatedSite = updatedSites.find(s => s.id === siteId);
+        const finalReport = generateDetailedReport(updatedSite!, isForest);
+
         const newAnalysis: Analysis = {
             id: history.length + 1,
             site_id: siteId,
@@ -476,9 +498,9 @@ export const mockApi = {
                 orbit_number: 124
             },
             interpretation: interpretations[analysisType] || interpretations.NDVI,
+            mean_value: meanValue,
             data: {
-                ...(analysisType === "COMPLETE" || analysisType === "FOREST" ? { detailed_report: generateDetailedReport(site!, isForest) } : {}),
-                mean_value: 0.6 + (Math.random() * 0.2),
+                ...(analysisType === "COMPLETE" || analysisType === "FOREST" ? { detailed_report: finalReport } : {}),
                 forest_data: isForest ? {
                     fire_risk_level: (report as any).fire_risk_assessment?.fire_risk_level,
                     ndmi: (report as any).fire_risk_assessment?.ndmi_value,
