@@ -416,6 +416,16 @@ export const mockApi = {
             updated_at: new Date().toISOString(),
             area_hectares: data.area_hectares || 12.5, // Fallback if not provided
         };
+
+        // Instant Auto-detection for missing types
+        if (newSite.site_type === "FIELD" && !newSite.crop_type) {
+            const CROPS = ["Wheat", "Barley", "Corn", "Olives", "Citrus", "Tomatoes"];
+            newSite.crop_type = CROPS[Math.floor(Math.random() * CROPS.length)];
+        } else if (newSite.site_type === "FOREST" && !newSite.forest_type) {
+            const FOREST_TYPES = ["Coniferous", "Deciduous", "Mixed"];
+            newSite.forest_type = FOREST_TYPES[Math.floor(Math.random() * FOREST_TYPES.length)];
+        }
+
         sites.push(newSite);
         setStore(STORAGE_KEYS.SITES, sites);
         return newSite;
@@ -469,13 +479,23 @@ export const mockApi = {
         // Update site with latest info
         const updatedSites = sites.map(s => {
             if (s.id === siteId) {
-                return {
-                    ...s,
+                const updates: any = {
                     latest_analysis_date: new Date().toISOString().split('T')[0],
                     latest_ndvi: isForest ? s.latest_ndvi : meanValue,
                     health_score: isForest ? s.health_score : Math.round(meanValue * 100),
                     updated_at: new Date().toISOString()
                 };
+
+                // Auto-detection logic for missing types
+                if (s.site_type === "FIELD" && !s.crop_type) {
+                    const CROPS = ["Wheat", "Barley", "Corn", "Olives", "Citrus", "Tomatoes"];
+                    updates.crop_type = CROPS[Math.floor(Math.random() * CROPS.length)];
+                } else if (s.site_type === "FOREST" && !s.forest_type) {
+                    const FOREST_TYPES = ["Coniferous", "Deciduous", "Mixed"];
+                    updates.forest_type = FOREST_TYPES[Math.floor(Math.random() * FOREST_TYPES.length)];
+                }
+
+                return { ...s, ...updates };
             }
             return s;
         });

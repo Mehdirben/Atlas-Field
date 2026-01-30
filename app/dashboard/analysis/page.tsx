@@ -1001,6 +1001,14 @@ export default function AnalysisPage() {
       // Send Telegram Notification
       const alertMsg = formatAnalysisAlert(selectedSite.name, type, analysis);
       await sendTelegramMessage(alertMsg);
+
+      // Refresh site data to show auto-detected type if applicable
+      if (type === "COMPLETE" || type === "FOREST") {
+        const updatedSites = await getSites();
+        setSites(updatedSites);
+        const updatedSite = updatedSites.find(s => s.id === selectedSite.id);
+        if (updatedSite) setSelectedSite(updatedSite);
+      }
     } catch (error) {
       console.error("Analysis failed:", error);
     } finally {
@@ -1371,9 +1379,11 @@ export default function AnalysisPage() {
                           <p className="font-semibold text-slate-900 text-sm sm:text-base">{selectedSite.area_hectares?.toFixed(2) || "—"} ha</p>
                         </div>
                         <div className="p-2.5 sm:p-3 bg-slate-50/80 rounded-lg sm:rounded-xl">
-                          <p className="text-[10px] sm:text-xs text-slate-500">{isForest ? "FOREST Type" : "Crop"}</p>
+                          <p className="text-[10px] sm:text-xs text-slate-500">{isForest ? "Forest Type" : "Crop"}</p>
                           <p className="font-semibold text-slate-900 text-sm sm:text-base truncate capitalize">
-                            {isForest ? (selectedSite.forest_type || "Pending analysis") : (selectedSite.crop_type || "Not set")}
+                            {isForest
+                              ? (selectedSite.forest_type || "Forest")
+                              : (selectedSite.crop_type || "Field")}
                           </p>
                         </div>
                         <div className="p-2.5 sm:p-3 bg-slate-50/80 rounded-lg sm:rounded-xl">

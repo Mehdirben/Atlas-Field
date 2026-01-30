@@ -208,7 +208,7 @@ export default function SitesPage() {
                         <p className="text-sm text-slate-500">
                           {site.site_type === "FOREST"
                             ? `${site.forest_type || "Forest"} • ${site.area_hectares?.toFixed(1) || "?"} ha`
-                            : `${site.crop_type || "Not specified"} • ${site.area_hectares?.toFixed(1) || "?"} ha`
+                            : `${site.crop_type || "Field"} • ${site.area_hectares?.toFixed(1) || "?"} ha`
                           }
                         </p>
                         {site.site_type === "FOREST" && site.protected_status && (
