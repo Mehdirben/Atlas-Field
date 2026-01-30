@@ -107,9 +107,6 @@ export function DashboardSidebar() {
                 <span className="px-2 py-0.5 bg-white/20 backdrop-blur-sm text-white text-xs font-medium rounded-md">
                   Current
                 </span>
-                <span className="text-white/80 text-xs">
-                  {siteCount !== null ? `${siteCount}/${limit}` : "-/-"} sites
-                </span>
               </div>
               <p className="text-white font-bold text-base lg:text-lg mb-1">{planName}</p>
               <p className="text-emerald-100 text-xs lg:text-sm mb-4">
