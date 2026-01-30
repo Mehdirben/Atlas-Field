@@ -239,6 +239,19 @@ function DetailedReportPanel({
                     </div>
                   )}
 
+                  {report.fire_risk_assessment?.msi_value !== undefined && (
+                    <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-slate-200/60 shadow-sm">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-cyan-100 flex items-center justify-center">
+                          <span className="text-cyan-600 text-xs sm:text-sm">🌡️</span>
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-wide">MSI</span>
+                      </div>
+                      <p className="text-xl sm:text-3xl font-bold text-slate-900">{report.fire_risk_assessment.msi_value.toFixed(2)}</p>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1 truncate">Moisture Stress</p>
+                    </div>
+                  )}
+
                   {report.carbon_sequestration?.total_carbon_t_ha !== undefined && (
                     <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-slate-200/60 shadow-sm">
                       <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
@@ -249,6 +262,19 @@ function DetailedReportPanel({
                       </div>
                       <p className="text-xl sm:text-3xl font-bold text-slate-900">{report.carbon_sequestration.total_carbon_t_ha}</p>
                       <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1">t CO₂/ha</p>
+                    </div>
+                  )}
+
+                  {report.vegetation_health?.evi_mean !== undefined && (
+                    <div className="bg-white rounded-xl sm:rounded-2xl p-3 sm:p-5 border border-slate-200/60 shadow-sm">
+                      <div className="flex items-center gap-1.5 sm:gap-2 mb-2 sm:mb-3">
+                        <div className="w-6 h-6 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-emerald-100 flex items-center justify-center">
+                          <span className="text-emerald-600 text-xs sm:text-sm">📏</span>
+                        </div>
+                        <span className="text-[10px] sm:text-xs font-medium text-slate-500 uppercase tracking-wide">EVI</span>
+                      </div>
+                      <p className="text-xl sm:text-3xl font-bold text-slate-900">{report.vegetation_health.evi_mean.toFixed(2)}</p>
+                      <p className="text-xs sm:text-sm text-slate-500 mt-0.5 sm:mt-1 truncate">Dense Forest</p>
                     </div>
                   )}
 
@@ -1686,7 +1712,12 @@ export default function AnalysisPage() {
                                   <tr className="bg-slate-50 border-b border-slate-200">
                                     <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">Date</th>
                                     <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">NDVI</th>
-                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">Carbon (t/ha)</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">EVI</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">NBR</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">dNBR</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">NDMI</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">MSI</th>
+                                    <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">Carbon</th>
                                     <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">Canopy</th>
                                     <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">Fire Risk</th>
                                     <th className="px-4 py-2 text-left text-xs font-semibold text-slate-500">Change</th>
@@ -1698,7 +1729,12 @@ export default function AnalysisPage() {
                                       <td className="px-4 py-3 font-medium text-slate-900">
                                         {new Date(analysis.date).toLocaleDateString()}
                                       </td>
-                                      <td className="px-4 py-3 text-slate-600">{analysis.ndvi.toFixed(3)}</td>
+                                      <td className="px-4 py-3 text-slate-600 font-medium">{analysis.ndvi.toFixed(3)}</td>
+                                      <td className="px-4 py-3 text-emerald-500">{analysis.evi?.toFixed(3) || "—"}</td>
+                                      <td className="px-4 py-3 text-orange-600 font-medium">{analysis.nbr.toFixed(3)}</td>
+                                      <td className="px-4 py-3 text-orange-400">{analysis.dnbr?.toFixed(3) || "—"}</td>
+                                      <td className="px-4 py-3 text-blue-600">{analysis.ndmi.toFixed(3)}</td>
+                                      <td className="px-4 py-3 text-cyan-600">{analysis.msi?.toFixed(3) || "—"}</td>
                                       <td className="px-4 py-3 text-slate-600">{analysis.carbon_stock_t_ha.toFixed(1)}</td>
                                       <td className="px-4 py-3 text-slate-600">{analysis.canopy_cover_percent.toFixed(0)}%</td>
                                       <td className="px-4 py-3">

@@ -58,7 +58,12 @@ export interface ForestAnalysisData {
     date: string;
     ndvi: number;
     nbr: number;
+    dnbr?: number;
     ndmi: number;
+    msi?: number;
+    ndre?: number;
+    evi?: number;
+    savi?: number;
     carbon_stock_t_ha: number;
     canopy_cover_percent: number;
     fire_risk_level: string;
