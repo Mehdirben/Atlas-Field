@@ -9,6 +9,7 @@ import {
   ChatIcon,
   BellIcon,
   SettingsIcon,
+  MarketplaceIcon,
 } from "@/components/icons";
 import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
@@ -21,6 +22,7 @@ const menuItems = [
   { href: "/dashboard/analysis", icon: SatelliteIcon, label: "Analysis", mobileLabel: "Analysis" },
   { href: "/dashboard/chat", icon: ChatIcon, label: "AI Assistant", mobileLabel: "Chat" },
   { href: "/dashboard/alerts", icon: BellIcon, label: "Alerts", mobileLabel: "Alerts" },
+  { href: "/dashboard/marketplace", icon: MarketplaceIcon, label: "Marketplace", mobileLabel: "Invest" },
   { href: "/dashboard/settings", icon: SettingsIcon, label: "Settings", mobileLabel: "Settings" },
 ];
 

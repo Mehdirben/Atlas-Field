@@ -97,11 +97,12 @@ export default function DashboardPage() {
       {/* Quick Actions */}
       <div>
         <h2 className="text-base sm:text-lg font-semibold text-slate-900 mb-3 sm:mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-3 gap-2 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
           {[
             { href: "/dashboard/sites/new", icon: "➕", label: "New Site", desc: "Add a field or forest" },
             { href: "/dashboard/analysis", icon: "🛰️", label: "Analysis", desc: "Analyze satellite data" },
             { href: "/dashboard/chat", icon: "💬", label: "Ask AI", desc: "Get AI-powered advice" },
+            { href: "/dashboard/marketplace", icon: "💼", label: "Marketplace", desc: "Manage investments" },
           ].map((action) => (
             <Link
               key={action.href}

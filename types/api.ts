@@ -143,3 +143,55 @@ export interface Alert {
     is_read: boolean;
     created_at: string;
 }
+
+// Investor Score & Marketplace Types
+
+export interface InvestorScoreBreakdown {
+    yield_stability: number;        // max 30 pts - based on 12-month NDVI history
+    crop_diversification: number;   // max 20 pts
+    farm_surface_area: number;      // max 15 pts
+    climate_resilience: number;     // max 25 pts
+    historical_performance: number; // max 10 pts
+}
+
+export interface InvestorScore {
+    site_id: number;
+    total_score: number;            // 0-100
+    breakdown: InvestorScoreBreakdown;
+    investment_potential_dh: number; // up to 200,000 DH
+    estimated_roi_min: number;      // 12%
+    estimated_roi_max: number;      // 25%
+    calculated_at: string;
+}
+
+export interface MarketplaceListing {
+    id: number;
+    site_id: number;
+    site_name: string;
+    site_type: SiteType;
+    area_hectares?: number;
+    crop_type?: string;
+    forest_type?: string;
+    investor_score: InvestorScore;
+    co2_credits_available?: number;  // tons
+    co2_price_per_ton?: number;      // DH
+    is_active: boolean;
+    published_at: string;
+}
+
+export interface InvestmentSubmission {
+    id: number;
+    listing_id: number;
+    site_id: number;
+    site_name: string;
+    investor_name: string;
+    investor_email: string;
+    investor_phone?: string;
+    investment_type: "CO2_CREDITS" | "SITE_INVESTMENT" | "BOTH";
+    proposed_amount_dh?: number;
+    message?: string;
+    is_read: boolean;
+    is_contacted: boolean;
+    submitted_at: string;
+}
+

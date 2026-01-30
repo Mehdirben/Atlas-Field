@@ -52,7 +52,7 @@ export function Footer() {
               AI-powered satellite monitoring for fields and forests. Make
               data-driven decisions with insights from space.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 mb-6">
               {socialLinks.map((social) => (
                 <a
                   key={social.name}
@@ -64,6 +64,14 @@ export function Footer() {
                 </a>
               ))}
             </div>
+            {/* Investor Portal Button */}
+            <Link
+              href="/marketplace"
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-medium rounded-xl hover:shadow-lg hover:shadow-indigo-500/25 hover:-translate-y-0.5 transition-all duration-200"
+            >
+              <span>💼</span>
+              Investor Portal
+            </Link>
           </div>
 
           {/* Links */}

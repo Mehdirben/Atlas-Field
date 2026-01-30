@@ -5,10 +5,10 @@ import { signOut } from "next-auth/react";
 import { LogoutIcon } from "@/components/icons";
 
 interface DashboardNavProps {
-  user: {
+  user?: {
     name?: string | null;
     email?: string | null;
-  };
+  } | null;
 }
 
 export function DashboardNav({ user }: DashboardNavProps) {
@@ -24,27 +24,47 @@ export function DashboardNav({ user }: DashboardNavProps) {
       </div>
 
       <div className="flex items-center gap-2 sm:gap-3">
-        <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-50/80 border border-slate-200/60">
-          <div className="hidden sm:block text-right">
-            <p className="text-sm font-semibold text-slate-900">
-              {user.name || user.email?.split("@")[0]}
-            </p>
-            <p className="text-xs text-slate-500 hidden md:block">{user.email}</p>
-          </div>
-          <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-semibold shadow-lg shadow-emerald-500/20 text-sm sm:text-base">
-            {(user.name || user.email || "U")[0].toUpperCase()}
-          </div>
-        </div>
+        {user ? (
+          <>
+            <div className="flex items-center gap-2 sm:gap-3 px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl bg-slate-50/80 border border-slate-200/60">
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-semibold text-slate-900">
+                  {user.name || user.email?.split("@")[0]}
+                </p>
+                <p className="text-xs text-slate-500 hidden md:block">{user.email}</p>
+              </div>
+              <div className="w-8 h-8 sm:w-9 sm:h-9 bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-lg sm:rounded-xl flex items-center justify-center text-white font-semibold shadow-lg shadow-emerald-500/20 text-sm sm:text-base">
+                {(user.name || user.email || "U")[0].toUpperCase()}
+              </div>
+            </div>
 
-        <button
-          onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-all duration-200"
-          title="Sign Out"
-        >
-          <LogoutIcon className="w-4 h-4" />
-          <span className="hidden sm:inline">Sign Out</span>
-        </button>
+            <button
+              onClick={() => signOut({ callbackUrl: "/" })}
+              className="flex items-center gap-2 p-2 sm:px-3 sm:py-2 text-sm text-slate-600 hover:text-red-600 hover:bg-red-50 rounded-lg sm:rounded-xl transition-all duration-200"
+              title="Sign Out"
+            >
+              <LogoutIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Sign Out</span>
+            </button>
+          </>
+        ) : (
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Link
+              href="/login"
+              className="text-sm font-medium text-slate-600 hover:text-slate-900 px-3 py-2"
+            >
+              Login
+            </Link>
+            <Link
+              href="/register"
+              className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white text-sm font-medium rounded-xl hover:shadow-lg hover:shadow-emerald-500/25 transition-all"
+            >
+              Get Started
+            </Link>
+          </div>
+        )}
       </div>
     </nav>
   );
 }
+
