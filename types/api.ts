@@ -39,11 +39,19 @@ export interface Site {
 
 export type Field = Site;
 
+export type SentinelSource = "Sentinel-1" | "Sentinel-2" | "Sentinel-2 L1C" | "Sentinel-2 L2A";
+
 export interface Analysis {
     id: number;
     site_id: number;
     analysis_type: "NDVI" | "EVI" | "NDWI" | "NDRE" | "RVI" | "MOISTURE" | "FUSION" | "YIELD" | "BIOMASS" | "COMPLETE" | "FOREST";
     satellite_date?: string;
+    sentinel_info?: {
+        source: SentinelSource;
+        resolution: string;
+        orbit_number?: number;
+        tile_id?: string;
+    };
     data: Record<string, unknown>;
     mean_value?: number;
     min_value?: number;

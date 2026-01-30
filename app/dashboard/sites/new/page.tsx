@@ -5,7 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Check, Loader2, MapPin, Maximize2, PlusCircle, Trees } from "lucide-react";
 import { createSite, SiteType } from "@/lib/api";
-import { cn } from "@/lib/utils";
+import { cn, calculateAreaHectares } from "@/lib/utils";
 
 const FieldMap = dynamic(() => import("@/components/map/FieldMap"), {
   ssr: false,
@@ -95,10 +95,13 @@ export default function NewSitePage() {
     setLoading(true);
 
     try {
+      const calculatedArea = geometry ? calculateAreaHectares(geometry) : undefined;
+
       await createSite({
         name: formData.name,
         description: formData.description || undefined,
         geometry: geometry,
+        area_hectares: calculatedArea,
         site_type: siteType,
         // Field-specific
         crop_type: siteType === "FIELD" ? formData.crop_type || undefined : undefined,

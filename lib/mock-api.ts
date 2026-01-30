@@ -28,10 +28,11 @@ const generateDetailedReport = (site: Site, isForest: boolean) => {
         metadata: {
             field_name: site.name,
             generated_at: new Date().toISOString(),
-            area_hectares: area,
+            area_hectares: area.toFixed(2),
             crop_type: site.crop_type,
             forest_type: site.forest_type,
-            analysis_type: isForest ? "FOREST" : "COMPLETE"
+            analysis_type: isForest ? "FOREST" : "COMPLETE",
+            sentinel_source: isForest ? "Sentinel-2 L2A" : "Sentinel-2 L1C"
         },
         summary: {
             overall_health_score: healthScore,
@@ -406,15 +407,16 @@ export const mockApi = {
     },
 
     createSite: async (data: any): Promise<Site> => {
-        const sites = getStore(STORAGE_KEYS.SITES, initialSites);
+        const sites = getStore<Site[]>(STORAGE_KEYS.SITES, initialSites);
         const newSite: Site = {
             ...data,
-            id: Math.max(...sites.map(s => s.id), 0) + 1,
+            id: sites.length + 1,
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
-            health_score: 75, // Default score
+            area_hectares: data.area_hectares || 12.5, // Fallback if not provided
         };
-        setStore(STORAGE_KEYS.SITES, [...sites, newSite]);
+        sites.push(newSite);
+        setStore(STORAGE_KEYS.SITES, sites);
         return newSite;
     },
 
@@ -460,25 +462,30 @@ export const mockApi = {
             FUSION: "Multi-sensor fusion confirms high correlation between moisture distribution and growth vigor."
         };
 
+        const history = getStore<Analysis[]>(STORAGE_KEYS.ANALYSES, initialAnalyses);
         const newAnalysis: Analysis = {
-            id: Date.now(),
+            id: history.length + 1,
             site_id: siteId,
             analysis_type: analysisType as any,
+            created_at: new Date().toISOString(),
             satellite_date: new Date().toISOString(),
+            sentinel_info: {
+                source: isForest ? "Sentinel-2 L2A" : "Sentinel-2 L1C",
+                resolution: "10m",
+                tile_id: "T31UGR",
+                orbit_number: 124
+            },
+            interpretation: interpretations[analysisType] || interpretations.NDVI,
             data: {
-                mock: true,
-                detailed_report: report,
+                ...(analysisType === "COMPLETE" || analysisType === "FOREST" ? { detailed_report: generateDetailedReport(site!, isForest) } : {}),
+                mean_value: 0.6 + (Math.random() * 0.2),
                 forest_data: isForest ? {
                     fire_risk_level: (report as any).fire_risk_assessment?.fire_risk_level,
                     ndmi: (report as any).fire_risk_assessment?.ndmi_value,
                     carbon_estimate_tonnes_ha: (report as any).carbon_sequestration?.total_carbon_t_ha
                 } : undefined
-            },
-            mean_value: 0.4 + Math.random() * 0.4,
-            interpretation: interpretations[analysisType] || interpretations["COMPLETE"],
-            created_at: new Date().toISOString(),
+            }
         };
-        const history = getStore<Analysis[]>(STORAGE_KEYS.ANALYSES, initialAnalyses);
         setStore(STORAGE_KEYS.ANALYSES, [newAnalysis, ...history]);
         return newAnalysis;
     },

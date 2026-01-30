@@ -864,9 +864,27 @@ function DetailedReportPanel({
         {/* Footer */}
         <div className="bg-white px-4 sm:px-8 py-3 sm:py-4 border-t border-slate-200 flex items-center justify-center text-xs sm:text-sm text-slate-500">
           <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-4">
-            <span>Generated: {new Date(report.metadata?.generated_at).toLocaleDateString()}</span>
+            <span>Generated: {new Date(report.metadata?.generated_at || analysis.created_at).toLocaleDateString()}</span>
             <span className="w-1 h-1 bg-slate-300 rounded-full" />
-            <span>{report.metadata?.area_hectares} hectares</span>
+            <span>{report.metadata?.area_hectares || "—"} hectares</span>
+            {analysis.sentinel_info && (
+              <>
+                <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                <span className="flex items-center gap-1.5">
+                  <span className="text-emerald-500">🛰️</span>
+                  {analysis.sentinel_info.source} ({analysis.sentinel_info.resolution})
+                </span>
+              </>
+            )}
+            {report.metadata?.sentinel_source && !analysis.sentinel_info && (
+              <>
+                <span className="w-1 h-1 bg-slate-300 rounded-full" />
+                <span className="flex items-center gap-1.5">
+                  <span className="text-emerald-500">🛰️</span>
+                  {report.metadata.sentinel_source}
+                </span>
+              </>
+            )}
           </div>
         </div>
       </div>
