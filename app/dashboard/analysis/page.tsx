@@ -1871,7 +1871,7 @@ export default function AnalysisPage() {
                     {isForest ? (
                       <ul className="space-y-1 sm:space-y-1.5">
                         <li className="flex items-center gap-1.5 sm:gap-2">
-                          <span className="text-green-500 text-xs sm:text-sm">✓</span> Canopy health (NDVI)
+                          <span className="text-green-500 text-xs sm:text-sm">✓</span> Canopy health (NDVI / EVI)
                         </li>
                         <li className="flex items-center gap-1.5 sm:gap-2">
                           <span className="text-green-500 text-xs sm:text-sm">✓</span> Fire risk assessment (NBR)
@@ -1888,11 +1888,17 @@ export default function AnalysisPage() {
                         <li className="flex items-center gap-1.5 sm:gap-2">
                           <span className="text-green-500 text-xs sm:text-sm">✓</span> Year-over-year trends
                         </li>
+                        <li className="flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-green-500 text-xs sm:text-sm">✓</span> Problem detection & alerts
+                        </li>
+                        <li className="flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-green-500 text-xs sm:text-sm">✓</span> Recommendations & actions
+                        </li>
                       </ul>
                     ) : (
                       <ul className="space-y-1 sm:space-y-1.5">
                         <li className="flex items-center gap-1.5 sm:gap-2">
-                          <span className="text-green-500 text-xs sm:text-sm">✓</span> Vegetation health (NDVI)
+                          <span className="text-green-500 text-xs sm:text-sm">✓</span> Vegetation health (NDVI / EVI)
                         </li>
                         <li className="flex items-center gap-1.5 sm:gap-2">
                           <span className="text-green-500 text-xs sm:text-sm">✓</span> Biomass estimation
@@ -1904,10 +1910,16 @@ export default function AnalysisPage() {
                           <span className="text-green-500 text-xs sm:text-sm">✓</span> Yield prediction
                         </li>
                         <li className="flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-green-500 text-xs sm:text-sm">✓</span> Carbon storage estimate
+                        </li>
+                        <li className="flex items-center gap-1.5 sm:gap-2">
                           <span className="text-green-500 text-xs sm:text-sm">✓</span> Problem detection & alerts
                         </li>
                         <li className="flex items-center gap-1.5 sm:gap-2">
                           <span className="text-green-500 text-xs sm:text-sm">✓</span> Recommendations
+                        </li>
+                        <li className="flex items-center gap-1.5 sm:gap-2">
+                          <span className="text-green-500 text-xs sm:text-sm">✓</span> Year-over-year trends
                         </li>
                       </ul>
                     )}
