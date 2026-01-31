@@ -12,6 +12,25 @@ Atlas is a state-of-the-art satellite monitoring platform designed for agricultu
 - **AI Site Assistant**: An intelligent chatbot powered by Gemini to answer specific questions about your sites and historical data.
 - **Investor Scorecard**: Detailed attractiveness scores and ROI estimates for land investments.
 
+## 🔐 Authentication & Demo Accounts
+
+This project uses **NextAuth.js** for session management. For demonstration purposes, it is configured with a **Mock Mode** by default.
+
+### Using Demo Accounts
+
+- You can sign in with **any email and password**.
+- The system will automatically log you into a "Demo User" account.
+- If you need to test the real backend authentication, set `USE_MOCK = false` in [lib/auth.ts](file:///home/mehdi/Documents/ex/Atlas/lib/auth.ts) and [lib/api.ts](file:///home/mehdi/Documents/ex/Atlas/lib/api.ts).
+
+### Environment Configuration
+
+Ensure your `NEXTAUTH_URL` matches your local development port:
+
+```env
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_secret_here
+```
+
 ## 🛠️ Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org/) (App Router)
@@ -64,7 +83,26 @@ Atlas is a state-of-the-art satellite monitoring platform designed for agricultu
 
    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-## 📂 Project Structure
+## � Deployment
+
+### Deploying to Vercel
+
+When deploying to [Vercel](https://vercel.com/), you need to set the following Environment Variables in your project settings:
+
+| Variable | Description |
+| :--- | :--- |
+| `NEXTAUTH_URL` | Your production URL (e.g., `https://your-app.vercel.app`) |
+| `NEXTAUTH_SECRET` | A random 32-character string |
+| `NEXT_PUBLIC_API_URL` | URL of your backend API (if separate) |
+| `GEMINI_API_KEY` | Your Google AI Studio key |
+| `NEXT_PUBLIC_MAPTILER_KEY` | Your MapTiler API key |
+| `SENTINEL_HUB_CLIENT_ID` | Sentinel Hub Client ID |
+| `SENTINEL_HUB_CLIENT_SECRET` | Sentinel Hub Client Secret |
+
+> [!TIP]
+> Vercel automatically sets `VERCEL_URL`, but NextAuth.js requires `NEXTAUTH_URL` to be explicitly set for many features to work correctly in production.
+
+## �📂 Project Structure
 
 - `app/`: Next.js App Router pages and API routes.
 - `components/`: Reusable UI components, organized by domain (landing, dashboard, marketplace, map).

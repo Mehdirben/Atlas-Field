@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   DashboardIcon,
   MapIcon,
@@ -27,6 +28,7 @@ const menuItems = [
 ];
 
 export function DashboardSidebar() {
+  const { data: session } = useSession();
   const pathname = usePathname();
   const [siteCount, setSiteCount] = useState<number | null>(null);
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -52,8 +54,9 @@ export function DashboardSidebar() {
     return pathname.startsWith(item.href);
   };
 
-  const rawTier = user?.subscription_tier || "FREE";
-  const tier = rawTier.toUpperCase() as SubscriptionTier;
+  const activeUser = session?.user || user;
+  const rawTier = (activeUser as any)?.subscriptionTier || (activeUser as any)?.subscription_tier || "FREE";
+  const tier = (rawTier as string).toUpperCase() as SubscriptionTier;
   const limit = SITE_LIMITS[tier] || SITE_LIMITS.FREE;
   const planName = tier === "FREE" ? "Free Plan" : tier === "PRO" ? "Pro Plan" : "Enterprise Plan";
 
