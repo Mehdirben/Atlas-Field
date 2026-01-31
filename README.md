@@ -22,14 +22,16 @@ This project uses **NextAuth.js** for session management. For demonstration purp
 - The system will automatically log you into a "Demo User" account.
 - If you need to test the real backend authentication, set `USE_MOCK = false` in [lib/auth.ts](file:///home/mehdi/Documents/ex/Atlas/lib/auth.ts) and [lib/api.ts](file:///home/mehdi/Documents/ex/Atlas/lib/api.ts).
 
-### Environment Configuration
+### Minimal Setup for Mock Demo
 
-Ensure your `NEXTAUTH_URL` matches your local development port:
+To run the app in mock mode (without a backend), you only need these 4 keys:
 
-```env
-NEXTAUTH_URL=http://localhost:3000
-NEXTAUTH_SECRET=your_secret_here
-```
+1. `NEXTAUTH_URL` (set to `http://localhost:3000`)
+2. `NEXTAUTH_SECRET` (any random string)
+3. `NEXT_PUBLIC_MAPTILER_KEY` (for maps)
+4. `GEMINI_API_KEY` (for the AI assistant)
+
+All other variables can be left empty as long as `USE_MOCK = true` remains in the code.
 
 ## 🛠️ Tech Stack
 
