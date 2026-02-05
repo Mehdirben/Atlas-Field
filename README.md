@@ -12,6 +12,24 @@ Atlas is a state-of-the-art satellite monitoring platform designed for agricultu
 - **AI Site Assistant**: An intelligent chatbot powered by Gemini to answer specific questions about your sites and historical data.
 - **Investor Scorecard**: Detailed attractiveness scores and ROI estimates for land investments.
 
+## 📸 Screenshots
+
+### Landing Page
+
+![Landing Page](images/landing-page.png)
+
+### Dashboard
+
+![Dashboard](images/dashboard-page.png)
+
+### Analysis Page
+
+![Analysis Page](images/analysis-page.png)
+
+### AI Chatbot
+
+![AI Chatbot](images/chatbot-page.png)
+
 ## 🔐 Authentication & Demo Accounts
 
 This project uses **NextAuth.js** for session management. For demonstration purposes, it is configured with a **Mock Mode** by default.
@@ -104,7 +122,7 @@ When deploying to [Vercel](https://vercel.com/), you need to set the following E
 > [!TIP]
 > Vercel automatically sets `VERCEL_URL`, but NextAuth.js requires `NEXTAUTH_URL` to be explicitly set for many features to work correctly in production.
 
-## 📂 Project Structure
+## �📂 Project Structure
 
 - `app/`: Next.js App Router pages and API routes.
 - `components/`: Reusable UI components, organized by domain (landing, dashboard, marketplace, map).
