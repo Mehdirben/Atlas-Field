@@ -104,7 +104,7 @@ When deploying to [Vercel](https://vercel.com/), you need to set the following E
 > [!TIP]
 > Vercel automatically sets `VERCEL_URL`, but NextAuth.js requires `NEXTAUTH_URL` to be explicitly set for many features to work correctly in production.
 
-## �📂 Project Structure
+## 📂 Project Structure
 
 - `app/`: Next.js App Router pages and API routes.
 - `components/`: Reusable UI components, organized by domain (landing, dashboard, marketplace, map).
